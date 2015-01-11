@@ -20,10 +20,25 @@ class HWGetCommentsApi extends ApiBase {
     );
 
     foreach( $res as $row ) {
+
+      $commenttext = new DerivativeRequest(
+        $this->getRequest(),
+        array(
+          'action' => 'parse',
+          'text' => $row->hwc_commenttext,
+          'prop' => 'text',
+          'disablepp' => ''
+        ),
+        true
+      );
+      $commenttext_api = new ApiMain( $commenttext );
+      $commenttext_api->execute();
+      $commenttext_data = $commenttext_api->getResultData();
+
       $vals = array(
         'pageid' => $row->hwc_page_id,
         'user_id' => $row->hwc_user_id,
-        'commenttext' => $row->hwc_commenttext,
+        'commenttext' => $commenttext_data['parse']['text']['*'],
         'timestamp' => $row->hwc_timestamp
       );
       $this->getResult()->addValue( array( 'query', 'comments' ), null, $vals );
