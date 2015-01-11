@@ -15,14 +15,34 @@ class HWAddCommentApi extends ApiBase {
     $dbr->insert(
       'hw_comments',
       array(
-        'hwc_user_id' => $user_id,
-        'hwc_page_id' => $page_id,
-        'hwc_commenttext' => $commenttext,
-        'hwc_timestamp' => $timestamp
+        'hw_user_id' => $user_id,
+        'hw_page_id' => $page_id,
+        'hw_commenttext' => $commenttext,
+        'hw_timestamp' => $timestamp
+      )
+    );
+
+    $res = $dbr->query("SELECT COUNT(hw_timestamp) FROM hw_comments WHERE hw_page_id=".$dbr->addQuotes($page_id));
+    $row = $res->fetchRow();
+    $count = round($row[0]);
+
+
+    $dbr->upsert(
+      'hw_comments_count',
+      array(
+        'hw_page_id' => $page_id,
+        'hw_comments_count' => $count,
+      ),
+      array('hw_page_id'),
+      array(
+        'hw_page_id' => $page_id,
+        'hw_comments_count' => $count,
       )
     );
 
     $this->getResult()->addValue('info' , 'message', 'comment was added');
+    $this->getResult()->addValue('info' , 'page_id', $page_id);
+    $this->getResult()->addValue('info' , 'comment_count', $count);
 
     return true;
   }

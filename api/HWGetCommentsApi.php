@@ -11,12 +11,12 @@ class HWGetCommentsApi extends ApiBase {
     $res = $dbr->select(
       'hw_comments',
       array(
-        'hwc_user_id',
-        'hwc_page_id',
-        'hwc_commenttext',
-        'hwc_timestamp'
+        'hw_user_id',
+        'hw_page_id',
+        'hw_commenttext',
+        'hw_timestamp'
       ),
-      'hwc_page_id ='.$page_id
+      'hw_page_id ='.$page_id
     );
 
     foreach( $res as $row ) {
@@ -25,7 +25,7 @@ class HWGetCommentsApi extends ApiBase {
         $this->getRequest(),
         array(
           'action' => 'parse',
-          'text' => $row->hwc_commenttext,
+          'text' => $row->hw_commenttext,
           'prop' => 'text',
           'disablepp' => ''
         ),
@@ -36,10 +36,10 @@ class HWGetCommentsApi extends ApiBase {
       $commenttext_data = $commenttext_api->getResultData();
 
       $vals = array(
-        'pageid' => $row->hwc_page_id,
-        'user_id' => $row->hwc_user_id,
+        'pageid' => $row->hw_page_id,
+        'user_id' => $row->hw_user_id,
         'commenttext' => $commenttext_data['parse']['text']['*'],
-        'timestamp' => $row->hwc_timestamp
+        'timestamp' => $row->hw_timestamp
       );
       $this->getResult()->addValue( array( 'query', 'comments' ), null, $vals );
     }
