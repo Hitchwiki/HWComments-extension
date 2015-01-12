@@ -5,6 +5,7 @@ class HWGetCommentsApi extends ApiBase {
     $params = $this->extractRequestParams();
 
     $page_id = $params['pageid'];
+    $dontparse = $params['dontparse'];
     $pageObj = $this->getTitleOrPageId($params);
 
     $dbr = wfGetDB( DB_SLAVE );
@@ -20,29 +21,36 @@ class HWGetCommentsApi extends ApiBase {
     );
 
     foreach( $res as $row ) {
-
-      $commenttext = new DerivativeRequest(
-        $this->getRequest(),
-        array(
-          'action' => 'parse',
-          'text' => $row->hw_commenttext,
-          'prop' => 'text',
-          'disablepp' => ''
-        ),
-        true
-      );
-      $commenttext_api = new ApiMain( $commenttext );
-      $commenttext_api->execute();
-      $commenttext_data = $commenttext_api->getResultData();
+      if($dontparse != true) {
+        $commenttext = new DerivativeRequest(
+          $this->getRequest(),
+          array(
+            'action' => 'parse',
+            'text' => $row->hw_commenttext,
+            'prop' => 'text',
+            'disablepp' => ''
+          ),
+          true
+        );
+        $commenttext_api = new ApiMain( $commenttext );
+        $commenttext_api->execute();
+        $commenttext_data = $commenttext_api->getResultData();
+        $commenttextresult = $commenttext_data['parse']['text']['*'];
+      }
+      else {
+        $commenttextresult = $row->hw_commenttext;
+      }
 
       $vals = array(
         'pageid' => $row->hw_page_id,
         'user_id' => $row->hw_user_id,
-        'commenttext' => $commenttext_data['parse']['text']['*'],
+        'commenttext' => $commenttextresult,
         'timestamp' => $row->hw_timestamp
       );
       $this->getResult()->addValue( array( 'query', 'comments' ), null, $vals );
     }
+
+
     if($vals == null) {
         $this->getResult()->addValue( array( 'query', 'comments' ), null, null);
     }
@@ -61,6 +69,9 @@ class HWGetCommentsApi extends ApiBase {
           'pageid' => array (
               ApiBase::PARAM_TYPE => 'string',
               ApiBase::PARAM_REQUIRED => true
+          ),
+          'dontparse' => array (
+              ApiBase::PARAM_TYPE => 'boolean'
           )
       );
   }
@@ -69,6 +80,7 @@ class HWGetCommentsApi extends ApiBase {
   public function getParamDescription() {
       return array_merge( parent::getParamDescription(), array(
           'pageid' => 'Id of the page',
+          'dontparse' => 'Set to true to get not parsed wikitext',
       ) );
   }
 }
