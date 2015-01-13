@@ -15,39 +15,42 @@ class HWGetCommentsApi extends ApiBase {
         'hw_user_id',
         'hw_page_id',
         'hw_commenttext',
-        'hw_timestamp'
+        'hw_timestamp',
+        'hw_deleted'
       ),
       'hw_page_id ='.$page_id
     );
 
     foreach( $res as $row ) {
-      if($dontparse != true) {
-        $commenttext = new DerivativeRequest(
-          $this->getRequest(),
-          array(
-            'action' => 'parse',
-            'text' => $row->hw_commenttext,
-            'prop' => 'text',
-            'disablepp' => ''
-          ),
-          true
-        );
-        $commenttext_api = new ApiMain( $commenttext );
-        $commenttext_api->execute();
-        $commenttext_data = $commenttext_api->getResultData();
-        $commenttextresult = $commenttext_data['parse']['text']['*'];
-      }
-      else {
-        $commenttextresult = $row->hw_commenttext;
-      }
+      if($row->hw_deleted == 0){
+        if($dontparse != true) {
+          $commenttext = new DerivativeRequest(
+            $this->getRequest(),
+            array(
+              'action' => 'parse',
+              'text' => $row->hw_commenttext,
+              'prop' => 'text',
+              'disablepp' => ''
+            ),
+            true
+          );
+          $commenttext_api = new ApiMain( $commenttext );
+          $commenttext_api->execute();
+          $commenttext_data = $commenttext_api->getResultData();
+          $commenttextresult = $commenttext_data['parse']['text']['*'];
+        }
+        else {
+          $commenttextresult = $row->hw_commenttext;
+        }
 
-      $vals = array(
-        'pageid' => $row->hw_page_id,
-        'user_id' => $row->hw_user_id,
-        'commenttext' => $commenttextresult,
-        'timestamp' => $row->hw_timestamp
-      );
-      $this->getResult()->addValue( array( 'query', 'comments' ), null, $vals );
+        $vals = array(
+          'pageid' => $row->hw_page_id,
+          'user_id' => $row->hw_user_id,
+          'commenttext' => $commenttextresult,
+          'timestamp' => $row->hw_timestamp
+        );
+        $this->getResult()->addValue( array( 'query', 'comments' ), null, $vals );
+      }
     }
 
 

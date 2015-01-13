@@ -13,6 +13,10 @@ $dir = __DIR__;
 $wgAutoloadClasses['HWCommentsHooks'] = "$dir/HWCommentsHooks.php";
 $wgHooks['LoadExtensionSchemaUpdates'][] = 'HWCommentsHooks::onLoadExtensionSchemaUpdates';
 
+//Deletion and undeletion hooks
+$wgHooks['ArticleDeleteComplete'][] = 'HWCommentsHooks::onArticleDeleteComplete';
+$wgHooks['ArticleRevisionUndeleted'][] = 'HWCommentsHooks::onArticleRevisionUndeleted';
+
 //APIs
 $wgAutoloadClasses['HWAddCommentApi'] = "$dir/api/HWAddCommentApi.php";
 $wgAutoloadClasses['HWGetCommentsApi'] = "$dir/api/HWGetCommentsApi.php";
