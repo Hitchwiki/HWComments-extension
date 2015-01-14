@@ -20,7 +20,9 @@ $wgHooks['ArticleRevisionUndeleted'][] = 'HWCommentsHooks::onArticleRevisionUnde
 //APIs
 $wgAutoloadClasses['HWAddCommentApi'] = "$dir/api/HWAddCommentApi.php";
 $wgAutoloadClasses['HWGetCommentsApi'] = "$dir/api/HWGetCommentsApi.php";
+$wgAutoloadClasses['HWGetCommentsCountApi'] = "$dir/api/HWGetCommentsCountApi.php";
 $wgAPIModules['hwaddcomment'] = 'HWAddCommentApi';
 $wgAPIModules['hwgetcomments'] = 'HWGetCommentsApi';
+$wgAPIModules['hwgetcommentscount'] = 'HWGetCommentsCountApi';
 
 return true;
