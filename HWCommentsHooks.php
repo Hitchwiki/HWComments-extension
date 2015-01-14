@@ -41,6 +41,18 @@ class HWCommentsHooks {
       )
     );
 
+    if ($newID != $oldID) {
+      $dbr->update(
+        'hw_comments_count',
+        array(
+          'hw_page_id' => $newID
+        ),
+        array(
+          'hw_page_id' => $oldID
+        )
+      );
+    }
+
     return true;
   }
 }
