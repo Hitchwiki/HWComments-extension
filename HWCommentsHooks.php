@@ -21,6 +21,15 @@ class HWCommentsHooks {
         'hw_page_id' => $id
       )
     );
+    $dbr->update(
+      'hw_comments_count',
+      array(
+        'hw_deleted' => '1'
+      ),
+      array(
+        'hw_page_id' => $id
+      )
+    );
 
     return true;
   }
@@ -41,17 +50,16 @@ class HWCommentsHooks {
       )
     );
 
-    if ($newID != $oldID) {
-      $dbr->update(
-        'hw_comments_count',
-        array(
-          'hw_page_id' => $newID
-        ),
-        array(
-          'hw_page_id' => $oldID
-        )
-      );
-    }
+    $dbr->update(
+      'hw_comments_count',
+      array(
+        'hw_deleted' => '0',
+        'hw_page_id' => $newID
+      ),
+      array(
+        'hw_page_id' => $oldID
+      )
+    );
 
     return true;
   }
