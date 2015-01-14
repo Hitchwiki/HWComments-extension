@@ -14,9 +14,9 @@ class HWGetCommentsCountApi extends ApiBase {
     foreach( $res as $row ) {
       $vals = array(
         'pageid' => $row->hw_page_id,
-        'rating_average' => $row->hw_comments_count,
+        'comments_count' => $row->hw_comments_count,
       );
-      $this->getResult()->addValue( array( 'query', 'ratings' ), null, $vals );
+      $this->getResult()->addValue( array( 'query', 'comment_counts' ), null, $vals );
     }
     if($vals == null) {
       $this->getResult()->addValue('error' , 'info', 'No comment counts for these pages.');
