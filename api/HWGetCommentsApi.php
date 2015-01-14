@@ -12,6 +12,7 @@ class HWGetCommentsApi extends ApiBase {
     $res = $dbr->select(
       'hw_comments',
       array(
+        'hw_comment_id',
         'hw_user_id',
         'hw_page_id',
         'hw_commenttext',
@@ -44,6 +45,7 @@ class HWGetCommentsApi extends ApiBase {
         }
 
         $vals = array(
+          'comment_id' => $row->hw_comment_id,
           'pageid' => $row->hw_page_id,
           'user_id' => $row->hw_user_id,
           'commenttext' => $commenttextresult,
