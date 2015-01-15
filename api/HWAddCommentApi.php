@@ -9,6 +9,7 @@ class HWAddCommentApi extends ApiBase {
     $user_id = $wgUser->getId();
     $commenttext = $params['commenttext'];
     $timestamp = wfTimestampNow();
+    $pageObj = $this->getTitleOrPageId($params);
 
     $dbr = wfGetDB( DB_MASTER );
 
@@ -22,10 +23,9 @@ class HWAddCommentApi extends ApiBase {
       )
     );
 
-    $res = $dbr->query("SELECT COUNT(hw_timestamp) FROM hw_comments WHERE hw_page_id=".$dbr->addQuotes($page_id));
+    $res = $dbr->query("SELECT COUNT(*) FROM hw_comments WHERE hw_page_id=" . $page_id);
     $row = $res->fetchRow();
     $count = round($row[0]);
-
 
     $dbr->upsert(
       'hw_comments_count',
@@ -60,7 +60,7 @@ class HWAddCommentApi extends ApiBase {
               ApiBase::PARAM_REQUIRED => true
           ),
           'pageid' => array (
-              ApiBase::PARAM_TYPE => 'string',
+              ApiBase::PARAM_TYPE => 'integer',
               ApiBase::PARAM_REQUIRED => true
           ),
           'token' => array (

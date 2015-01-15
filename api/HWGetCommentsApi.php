@@ -22,6 +22,8 @@ class HWGetCommentsApi extends ApiBase {
       'hw_page_id ='.$page_id
     );
 
+    $this->getResult()->addValue( array( 'query' ), 'comments', array() );
+
     foreach( $res as $row ) {
       if($row->hw_deleted == 0){
         if($dontparse != true) {
@@ -55,11 +57,6 @@ class HWGetCommentsApi extends ApiBase {
       }
     }
 
-
-    if($vals == null) {
-        $this->getResult()->addValue( array( 'query', 'comments' ), null, null);
-    }
-
     return true;
   }
 
@@ -72,7 +69,7 @@ class HWGetCommentsApi extends ApiBase {
   public function getAllowedParams() {
       return array(
           'pageid' => array (
-              ApiBase::PARAM_TYPE => 'string',
+              ApiBase::PARAM_TYPE => 'integer',
               ApiBase::PARAM_REQUIRED => true
           ),
           'dontparse' => array (
