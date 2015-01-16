@@ -10,16 +10,25 @@ class HWGetCommentsApi extends ApiBase {
 
     $dbr = wfGetDB( DB_SLAVE );
     $res = $dbr->select(
-      'hw_comments',
+      array(
+        'hw_comments',
+        'user'
+      ),
       array(
         'hw_comment_id',
         'hw_user_id',
         'hw_page_id',
         'hw_commenttext',
         'hw_timestamp',
-        'hw_deleted'
+        'hw_deleted',
+        'user_name'
       ),
-      'hw_page_id ='.$page_id
+      'hw_page_id ='.$page_id,
+      __METHOD__,
+      array(),
+      array( 'user' => array( 'JOIN', array(
+        'hw_comments.hw_user_id = user.user_id',
+      ) ) )
     );
 
     $this->getResult()->addValue( array( 'query' ), 'comments', array() );
@@ -51,7 +60,8 @@ class HWGetCommentsApi extends ApiBase {
           'pageid' => $row->hw_page_id,
           'user_id' => $row->hw_user_id,
           'commenttext' => $commenttextresult,
-          'timestamp' => $row->hw_timestamp
+          'timestamp' => $row->hw_timestamp,
+          'user_name' => $row->user_name
         );
         $this->getResult()->addValue( array( 'query', 'comments' ), null, $vals );
       }
