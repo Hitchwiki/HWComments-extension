@@ -1,19 +1,24 @@
 <?php
+
 class HWAddCommentApi extends ApiBase {
   public function execute() {
-    // Get parameters
-    $params = $this->extractRequestParams();
     global $wgUser;
+    if (!$wgUser->isAllowed('edit')) {
+      $this->dieUsage("You don't have permission to add comment", "permissiondenied");
+    }
 
+    $params = $this->extractRequestParams();
     $page_id = $params['pageid'];
     $user_id = $wgUser->getId();
     $commenttext = $params['commenttext'];
     $timestamp = wfTimestampNow();
     $pageObj = $this->getTitleOrPageId($params);
 
-    $dbr = wfGetDB( DB_MASTER );
+    // Exit with an error if pageid is not valid (eg. non-existent or deleted)
+    $this->getTitleOrPageId($params);
 
-    $dbr->insert(
+    $dbw = wfGetDB( DB_MASTER );
+    $dbw->insert(
       'hw_comments',
       array(
         'hw_user_id' => $user_id,
@@ -22,65 +27,77 @@ class HWAddCommentApi extends ApiBase {
         'hw_timestamp' => $timestamp
       )
     );
+    $comment_id = $dbw->insertId();
 
-    $res = $dbr->query("SELECT COUNT(*) FROM hw_comments WHERE hw_page_id=" . $page_id);
+    // Get fresh comment count
+    $res = $dbw->select(
+      'hw_comments',
+      array(
+        'COUNT(*) AS count_comment'
+      ),
+      array(
+        'hw_page_id' => $page_id
+      )
+    );
     $row = $res->fetchRow();
-    $count = round($row[0]);
+    $count = $row['count_comment'];
 
-    $dbr->upsert(
+    // Update comment count cache
+    $dbw->upsert(
       'hw_comments_count',
       array(
         'hw_page_id' => $page_id,
-        'hw_comments_count' => $count,
+        'hw_comments_count' => $count
       ),
       array('hw_page_id'),
       array(
-        'hw_page_id' => $page_id,
-        'hw_comments_count' => $count,
+        'hw_comments_count' => $count
       )
     );
 
-    $this->getResult()->addValue('info' , 'message', 'comment was added');
-    $this->getResult()->addValue('info' , 'page_id', $page_id);
-    $this->getResult()->addValue('info' , 'comment_count', $count);
+    $this->getResult()->addValue('query' , 'count', intval($count));
+    $this->getResult()->addValue('query' , 'pageid', intval($page_id));
+    $this->getResult()->addValue('query' , 'comment_id', $comment_id);
+    $this->getResult()->addValue('query' , 'timestamp', $timestamp);
 
     return true;
   }
 
   // Description
   public function getDescription() {
-      return 'Add a comment to a spot.';
+    return 'Add a comment to a spot';
   }
 
-  // Parameters.
+  // Parameters
   public function getAllowedParams() {
-      return array(
-          'commenttext' => array (
-              ApiBase::PARAM_TYPE => 'string',
-              ApiBase::PARAM_REQUIRED => true
-          ),
-          'pageid' => array (
-              ApiBase::PARAM_TYPE => 'integer',
-              ApiBase::PARAM_REQUIRED => true
-          ),
-          'token' => array (
-              ApiBase::PARAM_TYPE => 'string',
-              ApiBase::PARAM_REQUIRED => true
-          )
-      );
+    return array(
+      'commenttext' => array (
+        ApiBase::PARAM_TYPE => 'string',
+        ApiBase::PARAM_REQUIRED => true
+      ),
+      'pageid' => array (
+        ApiBase::PARAM_TYPE => 'integer',
+        ApiBase::PARAM_REQUIRED => true
+      ),
+      'token' => array (
+        ApiBase::PARAM_TYPE => 'string',
+        ApiBase::PARAM_REQUIRED => true
+      )
+    );
   }
 
-  // Describe the parameter
+  // Describe the parameters
   public function getParamDescription() {
-      return array_merge( parent::getParamDescription(), array(
-          'commenttext' => 'Text of the comment',
-          'pageid' => 'Id of the spot to comment',
-          'token' => 'User edit token'
-      ) );
+    return array_merge( parent::getParamDescription(), array(
+      'commenttext' => 'Comment text',
+      'pageid' => 'Page id',
+      'token' => 'csrf token'
+    ) );
   }
 
   public function needsToken() {
       return 'csrf';
   }
-
 }
+
+?>

@@ -1,84 +1,96 @@
 <?php
 class HWDeleteCommentApi extends ApiBase {
   public function execute() {
-    // Get parameters
-    $params = $this->extractRequestParams();
     global $wgUser;
+    if (!$wgUser->isAllowed('edit')) {
+      $this->dieUsage("You don't have permission to delete comment", "permissiondenied");
+    }
 
+    $params = $this->extractRequestParams();
     $comment_id = $params['comment_id'];
-    $dbr = wfGetDB( DB_MASTER );
-    $res = $dbr->select(
+
+    $dbw = wfGetDB( DB_MASTER );
+    $res = $dbw->select(
       'hw_comments',
       array(
         'hw_user_id',
         'hw_page_id'
       ),
-      'hw_comment_id='.$comment_id
+      array(
+        'hw_comment_id' => $comment_id
+      );
     );
 
     $row = $res->fetchObject();
     if (!$row) {
-      $this->getResult()->addValue('error' , 'info', 'comment does not exist');
-      return true;
+      $this->dieUsage("There is no comment with specified id", "nosuchwaitingtimeid");
     }
 
     if ($row->hw_user_id != $wgUser->getId()) {
-      $this->getResult()->addValue('error' , 'info', 'comment is authored by another user');
-      return true;
+      $this->dieUsage("You don't have permission to delete comment that was authored by another user", "permissiondenied");
     }
 
-    $page_id = $row->hw_page_id;
-    $dbr->delete(
+    $dbw->delete(
       'hw_comments',
       array(
         'hw_comment_id' => $comment_id
       )
     );
 
-    $res = $dbr->query("SELECT COUNT(*) FROM hw_comments WHERE hw_page_id=".$dbr->addQuotes($page_id));
-    $row = $res->fetchRow();
-    $count = round($row[0]);
+    $page_id = $row->hw_page_id;
 
-    $dbr->upsert(
+    // Get fresh comment count
+    $res = $dbw->select(
+      'hw_comments',
+      array(
+        'COUNT(*) AS count_comment'
+      ),
+      array(
+        'hw_page_id' => $page_id
+      )
+    );
+    $row = $res->fetchRow();
+    $count = $row['count_comment'];
+
+    // Update comment count cache
+    $dbw->upsert(
       'hw_comments_count',
       array(
         'hw_page_id' => $page_id,
-        'hw_comments_count' => $count,
+        'hw_comments_count' => $count
       ),
       array('hw_page_id'),
       array(
-        'hw_page_id' => $page_id,
-        'hw_comments_count' => $count,
+        'hw_comments_count' => $count
       )
     );
 
-    $this->getResult()->addValue('info' , 'message', 'comment was deleted');
-    $this->getResult()->addValue('info' , 'page_id', $page_id);
-    $this->getResult()->addValue('info' , 'comment_count', $count);
+    $this->getResult()->addValue('query' , 'count', intval($count));
+    $this->getResult()->addValue('query' , 'pageid', intval($page_id));
 
     return true;
   }
 
   // Description
   public function getDescription() {
-      return 'Delete comment from a spot.';
+    return 'Delete comment from a spot';
   }
 
-  // Parameters.
+  // Parameters
   public function getAllowedParams() {
-      return array(
-          'comment_id' => array (
-              ApiBase::PARAM_TYPE => 'integer',
-              ApiBase::PARAM_REQUIRED => true
-          ),
-          'token' => array (
-              ApiBase::PARAM_TYPE => 'string',
-              ApiBase::PARAM_REQUIRED => true
-          )
-      );
+    return array(
+      'comment_id' => array (
+        ApiBase::PARAM_TYPE => 'integer',
+        ApiBase::PARAM_REQUIRED => true
+      ),
+      'token' => array (
+        ApiBase::PARAM_TYPE => 'string',
+        ApiBase::PARAM_REQUIRED => true
+      )
+    );
   }
 
-  // Describe the parameter
+  // Describe the parameters
   public function getParamDescription() {
       return array_merge( parent::getParamDescription(), array(
           'comment_id' => 'Comment id',
@@ -91,3 +103,5 @@ class HWDeleteCommentApi extends ApiBase {
   }
 
 }
+
+?>
