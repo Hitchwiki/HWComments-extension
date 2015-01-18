@@ -18,7 +18,7 @@ class HWDeleteCommentApi extends ApiBase {
       ),
       array(
         'hw_comment_id' => $comment_id
-      );
+      )
     );
 
     $row = $res->fetchObject();
