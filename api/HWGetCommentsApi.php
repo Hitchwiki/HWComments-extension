@@ -55,11 +55,11 @@ class HWGetCommentsApi extends ApiBase {
       }
 
       $vals = array(
-        'pageid' => $row->hw_page_id,
-        'comment_id' => $row->hw_comment_id,
+        'pageid' => intval($row->hw_page_id),
+        'comment_id' => intval($row->hw_comment_id),
         'commenttext' => $commenttext,
         'timestamp' => $row->hw_timestamp,
-        'user_id' => $row->hw_user_id,
+        'user_id' => intval($row->hw_user_id),
         'user_name' => $row->user_name,
       );
       $this->getResult()->addValue( array( 'query', 'comments' ), null, $vals );

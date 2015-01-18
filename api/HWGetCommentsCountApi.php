@@ -19,8 +19,8 @@ class HWGetCommentsCountApi extends ApiBase {
     $this->getResult()->addValue( array( 'query' ), 'comment_counts', array() );
     foreach( $res as $row ) {
       $vals = array(
-        'pageid' => $row->hw_page_id,
-        'comment_count' => $row->hw_comments_count,
+        'pageid' => intval($row->hw_page_id),
+        'comment_count' => intval($row->hw_comments_count),
       );
       $this->getResult()->addValue( array( 'query', 'comment_counts' ), null, $vals );
     }
