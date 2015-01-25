@@ -1,6 +1,6 @@
 <?php
 
-class HWGetCommentsApi extends ApiBase {
+class HWGetCommentsApi extends HWCommentsBaseApi {
   public function execute() {
     $params = $this->extractRequestParams();
     $page_id = $params['pageid'];

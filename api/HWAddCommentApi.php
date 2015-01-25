@@ -1,6 +1,6 @@
 <?php
 
-class HWAddCommentApi extends ApiBase {
+class HWAddCommentApi extends HWCommentsBaseApi {
   public function execute() {
     global $wgUser;
     if (!$wgUser->isAllowed('edit')) {
@@ -29,33 +29,9 @@ class HWAddCommentApi extends ApiBase {
     );
     $comment_id = $dbw->insertId();
 
-    // Get fresh comment count
-    $res = $dbw->select(
-      'hw_comments',
-      array(
-        'COUNT(*) AS count_comment'
-      ),
-      array(
-        'hw_page_id' => $page_id
-      )
-    );
-    $row = $res->fetchRow();
-    $count = $row['count_comment'];
+    $aggregate = $this->updateCommentCounts($page_id);
 
-    // Update comment count cache
-    $dbw->upsert(
-      'hw_comments_count',
-      array(
-        'hw_page_id' => $page_id,
-        'hw_comments_count' => $count
-      ),
-      array('hw_page_id'),
-      array(
-        'hw_comments_count' => $count
-      )
-    );
-
-    $this->getResult()->addValue('query' , 'count', intval($count));
+    $this->getResult()->addValue('query' , 'count', intval($aggregate['count']));
     $this->getResult()->addValue('query' , 'pageid', intval($page_id));
     $this->getResult()->addValue('query' , 'comment_id', $comment_id);
     $this->getResult()->addValue('query' , 'timestamp', $timestamp);

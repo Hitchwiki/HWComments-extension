@@ -20,6 +20,7 @@ $wgHooks['ArticleDeleteComplete'][] = 'HWCommentsHooks::onArticleDeleteComplete'
 $wgHooks['ArticleRevisionUndeleted'][] = 'HWCommentsHooks::onArticleRevisionUndeleted';
 
 //APIs
+$wgAutoloadClasses['HWCommentsBaseApi'] = "$dir/api/HWCommentsBaseApi.php";
 $wgAutoloadClasses['HWAddCommentApi'] = "$dir/api/HWAddCommentApi.php";
 $wgAutoloadClasses['HWDeleteCommentApi'] = "$dir/api/HWDeleteCommentApi.php";
 $wgAutoloadClasses['HWGetCommentsApi'] = "$dir/api/HWGetCommentsApi.php";
