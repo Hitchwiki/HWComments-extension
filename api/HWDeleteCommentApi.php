@@ -23,7 +23,7 @@ class HWDeleteCommentApi extends ApiBase {
 
     $row = $res->fetchObject();
     if (!$row) {
-      $this->dieUsage("There is no comment with specified id", "nosuchwaitingtimeid");
+      $this->dieUsage("There is no comment with specified id", "nosuchcommentid");
     }
 
     if ($row->hw_user_id != $wgUser->getId()) {
