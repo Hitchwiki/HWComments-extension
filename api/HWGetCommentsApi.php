@@ -28,7 +28,7 @@ class HWGetCommentsApi extends HWCommentsBaseApi {
       ),
       __METHOD__,
       array(),
-      array( 'user' => array( 'JOIN', array(
+      array( 'user' => array( 'LEFT JOIN', array(
         'hw_comments.hw_user_id = user.user_id',
       ) ) )
     );
@@ -60,7 +60,7 @@ class HWGetCommentsApi extends HWCommentsBaseApi {
         'commenttext' => $commenttext,
         'timestamp' => $row->hw_timestamp,
         'user_id' => intval($row->hw_user_id),
-        'user_name' => $row->user_name,
+        'user_name' => $row->user_name ? $row->user_name : '',
       );
       $this->getResult()->addValue( array( 'query', 'comments' ), null, $vals );
     }
