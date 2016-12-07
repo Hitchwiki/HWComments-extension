@@ -48,7 +48,7 @@ class HWGetCommentsApi extends HWCommentsBaseApi {
         );
         $parse_api = new ApiMain( $parse_request );
         $parse_api->execute();
-        $parsed_data = $parse_api->getResultData();
+        $parsed_data = $parse_api->getResult()->getResultData( null, ['BC' => [], 'Types' => [], 'Strip' => 'all'] );
         $commenttext = $parsed_data['parse']['text']['*'];
       } else {
         $commenttext = $row->hw_commenttext;
