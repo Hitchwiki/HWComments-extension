@@ -5,7 +5,7 @@ $wgExtensionCredits['HWComments'][] = array(
   'name' => 'HWComments',
   'author' => array('Rémi Claude', 'Mikael Korpela', 'Olexandr Melnyk'),
   'url' => 'https://github.com/Hitchwiki/HWComments-extension',
-  'version' => '0.0.1',
+  'version' => '1.0.0',
   "authors" => "http://hitchwiki.org"
 );
 
