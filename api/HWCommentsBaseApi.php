@@ -49,5 +49,3 @@ abstract class HWCommentsBaseApi extends ApiBase {
     );
   }
 }
-
-?>

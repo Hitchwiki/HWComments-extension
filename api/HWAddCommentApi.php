@@ -75,5 +75,3 @@ class HWAddCommentApi extends HWCommentsBaseApi {
       return 'csrf';
   }
 }
-
-?>

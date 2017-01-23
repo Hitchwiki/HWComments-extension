@@ -4,7 +4,7 @@ class HWGetCommentsCountApi extends HWCommentsBaseApi {
     $params = $this->extractRequestParams();
     $page_ids = $params['pageid'];
 
-    $dbr = wfGetDB( DB_SLAVE );
+    $dbr = wfGetDB(DB_SLAVE);
     $res = $dbr->select(
       'hw_comments_count',
       array(

@@ -79,5 +79,3 @@ class HWDeleteCommentApi extends HWCommentsBaseApi {
   }
 
 }
-
-?>

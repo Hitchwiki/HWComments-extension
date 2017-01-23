@@ -94,5 +94,3 @@ class HWGetCommentsApi extends HWCommentsBaseApi {
     ) );
   }
 }
-
-?>
