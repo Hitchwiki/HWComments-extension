@@ -2,9 +2,10 @@
 class HWGetCommentsCountApi extends HWCommentsBaseApi {
   public function execute() {
     $params = $this->extractRequestParams();
-    $page_ids = $params['pageid'];
+    $page_ids = $params['pageid']; // Page ids, delimited by `|` (vertical bar)
 
     $dbr = wfGetDB(DB_SLAVE);
+
     $res = $dbr->select(
       'hw_comments_count',
       array(
@@ -19,8 +20,8 @@ class HWGetCommentsCountApi extends HWCommentsBaseApi {
     $this->getResult()->addValue( array( 'query' ), 'comment_counts', array() );
     foreach( $res as $row ) {
       $vals = array(
-        'pageid' => intval($row->hw_page_id),
-        'comment_count' => intval($row->hw_comments_count),
+        'pageid' => intval($row->hw_page_id, 10),
+        'comment_count' => intval($row->hw_comments_count, 10),
       );
       $this->getResult()->addValue( array( 'query', 'comment_counts' ), null, $vals );
     }

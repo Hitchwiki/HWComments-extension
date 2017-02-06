@@ -3,8 +3,9 @@
 class HWAddCommentApi extends HWCommentsBaseApi {
   public function execute() {
     global $wgUser;
+
     if (!$wgUser->isAllowed('edit')) {
-      $this->dieUsage("You don't have permission to add comment", "permissiondenied");
+      $this->dieUsage('You do not have permission to add comment', 'permissiondenied');
     }
 
     $params = $this->extractRequestParams();
@@ -31,8 +32,8 @@ class HWAddCommentApi extends HWCommentsBaseApi {
 
     $aggregate = $this->updateCommentCounts($page_id);
 
-    $this->getResult()->addValue('query' , 'count', intval($aggregate['count']));
-    $this->getResult()->addValue('query' , 'pageid', intval($page_id));
+    $this->getResult()->addValue('query' , 'count', intval($aggregate['count'], 10));
+    $this->getResult()->addValue('query' , 'pageid', intval($page_id, 10));
     $this->getResult()->addValue('query' , 'comment_id', $comment_id);
     $this->getResult()->addValue('query' , 'timestamp', $timestamp);
 
@@ -72,6 +73,6 @@ class HWAddCommentApi extends HWCommentsBaseApi {
   }
 
   public function needsToken() {
-      return 'csrf';
+    return 'csrf';
   }
 }

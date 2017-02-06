@@ -19,7 +19,7 @@ abstract class HWCommentsBaseApi extends ApiBase {
       )
     );
     $row = $res->fetchRow();
-    $count = intval($row['count_comment']);
+    $count = intval($row['count_comment'], 10);
 
     if ($count != 0) {
 	    // Update comment count cache
